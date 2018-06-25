@@ -1,11 +1,12 @@
 <template>
-  <div class="main">
+  <div>
     <div class="columns">
       <div class="column">
         <h1 class="title">Scenarios</h1>
       </div>
       <div class="column is-narrow">
 		    <router-link :to="{ name: 'NewScenario' }" class="button is-success">Create Scenario</router-link>
+        <router-link :to="{ name: 'ImportScenario' }" class="button">Import Scenario</router-link>
       </div>
     </div>
     <div class="columns">
@@ -15,12 +16,6 @@
     </div>
   </div>
 </template>
-
-<style scoped>
-  .main {
-    margin-top: 20px;
-  }
-</style>
 
 <script>
   import ScenariosListing from '@/components/scenarios/ScenariosListing.vue'

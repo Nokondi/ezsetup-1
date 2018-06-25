@@ -1,8 +1,14 @@
 import store from '@/store'
 
-let API_SERVER = 'http://localhost:5000'
-if (process.env.NODE_ENV === 'production') {
-  API_SERVER = 'http://172.16.100.4:5002'
+let API_SERVER
+
+switch (process.env.NODE_ENV) {
+  case 'development':
+    API_SERVER = 'http://127.0.0.1:5000'
+    break
+  case 'production':
+    API_SERVER = location.protocol + '//' + location.hostname + ':5002'
+    break
 }
 
 function authHeaders () {
@@ -61,11 +67,32 @@ function GETUserSelf (jsonOkCallback) {
 }
 
 function GETUser (id, jsonOkCallback) {
-  _GET('/api/users/' + id + '/', jsonOkCallback)
+  let options = {
+    headers: authHeaders(),
+    method: 'GET'
+  }
+  fetch(API_SERVER + '/api/users/' + id + '/', options)
+    .then(response => {
+      if (response.ok) {
+        response.json().then(jsonOkCallback)
+      }
+    })
+}
+
+function DELETEUser (id, jsonOkCallback) {
+  let options = {
+    headers: authHeaders(),
+    method: 'DELETE'
+  }
+  fetch(API_SERVER + '/api/users/' + id + '/', options)
+    .then(response => {
+      if (response.ok) {
+        response.json().then(jsonOkCallback)
+      }
+    })
 }
 
 function POSTUser (email, password, fullname, permissionGroups, jsonOkCallback) {
-  console.log('API client - POST /api/users/ - inputs:', email, password, fullname, permissionGroups)
   let options = {
     headers: authHeaders(),
     method: 'POST',
@@ -76,7 +103,6 @@ function POSTUser (email, password, fullname, permissionGroups, jsonOkCallback) 
       'permissionGroups': permissionGroups
     })
   }
-  console.log('API client - POST /api/users/ - body:', options.body)
 
   fetch(API_SERVER + '/api/users/', options)
     .then(response => {
@@ -86,6 +112,26 @@ function POSTUser (email, password, fullname, permissionGroups, jsonOkCallback) 
     })
 }
 
+function PATCHUser (id, fullname, email, password, permissionGroups, onSuccess, onFailed) {
+  let options = {
+    headers: authHeaders(),
+    method: 'PATCH',
+    body: JSON.stringify({
+      fullname: fullname,
+      email: email,
+      password: password,
+      permissionGroups: permissionGroups
+    })
+  }
+
+  fetch(API_SERVER + '/api/users/' + id + '/', options).then(response => {
+    if (response.ok) {
+      response.json().then(onSuccess)
+    } else {
+      response.json().then(onFailed)
+    }
+  })
+}
 function SEARCHuser (searchTerm, jsonOkCallback) {
   let options = {
     headers: authHeaders(),
@@ -178,6 +224,19 @@ function PATCHscenario (name, description, sgRules, isPublic, topo, id, onSucces
       response.json().then(onFailed)
     }
   })
+}
+
+function DELETEscenario (id, jsonOkCallback) {
+  let options = {
+    headers: authHeaders(),
+    method: 'DELETE'
+  }
+  fetch(API_SERVER + '/api/scenarios/' + id + '/', options)
+    .then(response => {
+      if (response.ok) {
+        response.json().then(jsonOkCallback)
+      }
+    })
 }
 
 function GETlab (labId, jsonOkCallback) {
@@ -464,17 +523,22 @@ function GETGrade (id, jsonOkCallback) {
 }
 
 export {
+  API_SERVER,
+
   login,
   GETUserSelf,
+  GETUser,
   LISTusers,
   POSTUser,
-  GETUser,
+  PATCHUser,
   SEARCHuser,
+  DELETEUser,
 
   GETscenario,
   LISTscenarios,
   POSTscenario,
   PATCHscenario,
+  DELETEscenario,
 
   GETlab,
   POSTlab,

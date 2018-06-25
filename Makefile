@@ -1,5 +1,7 @@
-include .env
-export $(shell sed -r 's/export\s*([^=]*).*/\1/' .env)
+-include .env
+export
+
+.PHONY : install install-production run-api run-worker run-frontend test db-shell db-dump
 
 install:
 	cd api && pip install pipenv && pipenv --python 3.6 && pipenv install -d
@@ -10,10 +12,13 @@ install-production:
 	cd frontend && npm install --production
 
 run-api:
-	cd api && pipenv run python app.py >> ../api-server.log 2>&1 &
+	cd api && pipenv run python app.py
+
+run-worker:
+	cd api && pipenv run rq worker -c backgroundjobs.settings
 
 run-frontend:
-	cd frontend && npm run dev >> ../frontend.log 2>&1 &
+	cd frontend && npm run dev
 
 test:
 	cd api && pipenv run mypy --ignore-missing-imports app.py

@@ -23,6 +23,7 @@ class Lab(Model):
     preassessment_id = IntegerField()
     postassessment_id = IntegerField()
     allowed_attempts = ArrayField()
+    error_msgs = ArrayField()
 
     class Meta:
         table = 'labs'

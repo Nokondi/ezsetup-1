@@ -7,26 +7,27 @@ verify_ssl = true
 
 [packages]
 
-"argon2_cffi" = "~=18.1.0"
+"argon2-cffi" = "~=18.1.0"
 blinker = "~=1.4"
 "boto3" = "~=1.5.12"
-Flask-Classful = "~=0.14.1"
-Flask = "~=0.12.2"
-Flask-Cors = "~=3.0.3"
+flask-classful = "~=0.14.1"
+flask = "~=0.12.2"
+flask-cors = "~=3.0.3"
 openstacksdk = "~=0.9.18"
 passlib = "~=1.7.1"
-"psycopg2" = "~=2.7.1"
 raven = "~=6.5.0"
 redis = "~=2.10.6"
 postgrespy = "~=0.3.1"
-PyYAML = "~=3.12"
+pyyaml = "~=3.12"
+rq = "*"
+"psycopg2-binary" = "==2.7.4"
 
 
 [dev-packages]
 
 pipdeptree = "~=0.10.1"
 "flake8" = "~=3.5.0"
-neovim = "~=0.2.0"
+neovim = "~=0.2.4"
 jedi = "~=0.11.1"
-pytest = "~=3.4.0"
+pytest = "~=3.4.2"
 mypy = "~=0.560"

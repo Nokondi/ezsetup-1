@@ -2,12 +2,12 @@
   <div class="card">
     <header class="card-header">
       <p class="card-header-title">
-        <slot name="title">Dialog Title</slot>
+        <slot name="title">Panel Title</slot>
       </p>
     </header>
     <div class="card-content">
       <div class="content">
-        <slot name="body">Dialog Content</slot>
+        <slot name="body">Panel Content</slot>
       </div>
     </div>
     <footer class="card-footer">
@@ -38,13 +38,16 @@
     right: 30px;
     min-width: 340px;
   }
+
   .card-header {
     background: #f7f7f7;
   }
+
   .card-content {
     max-height: 570px;
     overflow-y: auto;
   }
+
   .cancel {
     color: #363636;
   }

@@ -2,7 +2,7 @@
   <div class="main">
     <div class="columns">
       <div class="column">
-        <h2 class="title">{{ meta.name }}</h2>
+        <h1 class="title">{{ meta.name }}</h1>
       </div>
     </div>
 
@@ -60,13 +60,13 @@
       </div>
     </div>
 
-    <article v-if="message.error" class="message is-danger">
+    <article v-if="errors.length > 0" class="message is-danger">
       <div class="message-header">
         <p>Error</p>
-        <button class="delete" @click="message.error = ''"></button>
+        <button class="delete" @click="errors = []"></button>
       </div>
       <div class="message-body">
-        {{ message.error }}
+        {{ errors }}
       </div>
     </article>
   </div>
@@ -91,12 +91,21 @@ import {
   PATCHscenario,
   POSTscenario,
   GETscenario,
+  DELETEscenario,
   LISTInstanceConfigurations,
   LISTRouterConfigurations,
   LISTFlavors
 } from '@/api'
 
 const uuidv1 = require('uuid/v1')
+
+/*
+ * This constant will be used for deciding if the imported scenario's compatibility
+ * The format version number of a scenario file follows MAJOR.minor rule
+ *   - Scenario files with the same MAJOR with the one defined here should be compatible
+ *   - Files with different MAJOR numbers may be incompatible
+ */
+const SCENARIO_FORMAT_VERSION = '1.0'
 
 export default {
   name: "ScenarioEditor",
@@ -115,6 +124,7 @@ export default {
     NetworkPropertiesPanel,
     ScenarioMetaPanel
   },
+  props: ["propContent"],
   data: function () {
     return {
       isNewScenario: false,
@@ -136,12 +146,11 @@ export default {
         { name: 'delete', icon: 'trash-alt', title: '' }
       ],
       secondaryTools: [
-        { name: 'import', icon: 'upload', title: 'Import', disabled: true },
         { name: 'export', icon: 'download', title: 'Export' }
       ],
       publishTools: [
         { name: 'save', icon: 'save', title: '', theme: 'is-success' },
-        { name: 'delete', icon: 'trash-alt', title: 'Delete Scenario', hidden: true, disabled: true },
+        { name: 'delete', icon: 'trash-alt', title: 'Delete Scenario' },
       ],
 
       selectionType: '',
@@ -158,14 +167,12 @@ export default {
 
       flavors: [],
 
-      message: {
-        error: ''
-      }
+      errors: []
     }
   },
 
   beforeRouteEnter: function (to, from, next) {
-    if (to.name === "ScenarioEditor") {
+    if (to.name === "ScenarioEditor" && !isNaN(to.params.id)) {
       GETscenario(to.params.id, json => {
         next(vm => vm.setData(json))
       });
@@ -188,6 +195,20 @@ export default {
         this.selectionType = 'scenario';
         this.selectedElement = this.meta;
         break;
+      case "ImportScenario":
+        this.isNewScenario = true;
+        this.publishTools.find(tool => tool.name === 'save').title = 'Create';
+        this.publishTools.find(tool => tool.name === 'delete').hidden = true;
+        this.selectionType = 'scenario';
+        this.selectedElement = this.meta;
+
+      if (Boolean(this.propContent)) {
+        this.instances = this.propContent.topo.instances
+        this.routers = this.propContent.topo.routers
+        this.networks = this.propContent.topo.networks
+        this.links = this.propContent.topo.links
+        this.meta = this.propContent.meta
+      }
     }
 
     LISTInstanceConfigurations(json => {
@@ -258,8 +279,8 @@ export default {
           let onFailed = json => {
             button.theme = 'is-success';
             button.disabled = false;
-            if (json && json.message) {
-              this.message.error = json.message;
+            if (json && json.errors) {
+              this.errors = json.errors;
             }
           };
           if (this.isNewScenario) {
@@ -270,6 +291,9 @@ export default {
           }
           break;
         case 'delete':
+          DELETEscenario(this.$route.params.id, json => {
+            this.$router.push('/scenarios')
+          })
           break;
       }
     },
@@ -389,8 +413,18 @@ export default {
                 gid: uuidv1(),
                 name: `${network.name}_${target.name}`,
                 type: 'NetworkLink',
-                network: network,
-                target: target,
+                network: {
+                  gid: network.gid,
+                  x: network.x,
+                  y: network.y,
+                  type: network.type
+                },
+                target: {
+                  gid: target.gid,
+                  x: target.x,
+                  y: target.y,
+                  type: target.type
+                },
                 ip: null
               }
               if (this.links.find(el => el.network == network && el.target == target) === undefined) { // not duplicated link)
@@ -422,7 +456,12 @@ export default {
           if (this.tempLink === null){
             this.tempLink = {
               network: null,
-              target: element,
+              target: {
+                gid: element.gid,
+                x: element.x,
+                y: element.y,
+                type: element.type
+              },
               x1: element.x,
               y1: element.y,
               x2: element.x,
@@ -436,8 +475,18 @@ export default {
                 gid: uuidv1(),
                 name: `${network.name}_${target.name}`,
                 type: 'NetworkLink',
-                network: network,
-                target: target,
+                network: {
+                  gid: network.gid,
+                  x: network.x,
+                  y: network.y,
+                  type: network.type
+                },
+                target: {
+                  gid: target.gid,
+                  x: target.x,
+                  y: target.y,
+                  type: target.type
+                },
                 ip: null
               }
               if (this.links.find(el => el.network == network && el.target == target) === undefined) { // not duplicated link)
@@ -470,7 +519,12 @@ export default {
           if (this.tempLink === null){
             this.tempLink = {
               network: null,
-              target: element,
+              target: {
+                gid: element.gid,
+                x: element.x,
+                y: element.y,
+                type: element.type
+              },
               x1: element.x,
               y1: element.y,
               x2: element.x,
@@ -484,8 +538,18 @@ export default {
                 name: `${network.name}_${target.name}`,
                 gid: uuidv1(),
                 type: 'NetworkLink',
-                network: network,
-                target: target,
+                network: {
+                  gid: network.gid,
+                  x: network.x,
+                  y: network.y,
+                  type: network.type
+                },
+                target: {
+                  gid: target.gid,
+                  x: target.x,
+                  y: target.y,
+                  type: target.type
+                },
                 ip: null
               }
               if (this.links.find(el => el.network == network && el.target == target) === undefined) { // not duplicated link)
@@ -559,7 +623,11 @@ export default {
 
     download() {
       const element = document.createElement('a');
-      const json = JSON.stringify(this.topo);
+      const json = JSON.stringify({
+        formatVersion: SCENARIO_FORMAT_VERSION,
+        meta: this.meta,
+        topo: this.topo
+      });
       const blob = new Blob([json], {type: "application/json"});
 
       element.setAttribute('href', URL.createObjectURL(blob));
