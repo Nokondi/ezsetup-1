@@ -111,6 +111,9 @@ class Slices(FlaskView):
             lab = Lab.fetchone(id=sl.lab_id)
             ret.append({
                 'id': sl.id,
+                'preassessment': lab.preassessment_id,
+                'postassessment': lab.postassessment_id,
+                'allowedAttempts': lab.allowed_attempts
                 'status': sl.status,
                 'lab': {
                     'name': lab.name,

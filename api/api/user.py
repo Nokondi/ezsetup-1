@@ -83,7 +83,10 @@ class Users(FlaskView):
     @route('/self')
     def get_self(self):
         get_user_info()
-        return jsonify(permissionGroups=g.user['permission_groups'])
+        return jsonify(
+            permissionGroups=g.user['permission_groups'],
+            email=g.user['email'],
+            id=g.user['id'])
 
     @route('/search', methods=['POST'])
     def search(self):

@@ -32,7 +32,10 @@ create table labs (id SERIAL PRIMARY KEY,
                   description TEXT,
                   status DEPLOY_STATUS,
                   owner_id INTEGER REFERENCES users (id) ON DELETE CASCADE,
-                  scenario_id INTEGER REFERENCES scenarios (id) ON DELETE SET NULL);
+                  scenario_id INTEGER REFERENCES scenarios (id) ON DELETE SET NULL,
+                  preassessment_id INTEGER REFERENCES assessments (id),
+                  postassessment_id INTEGER REFERENCES assessments (id),
+                  allowed_attempts INTEGER[]);
 
 create table cloudconfigs (id SERIAL PRIMARY KEY,
                      detail JSONB,
@@ -96,3 +99,37 @@ create table routers (id SERIAL PRIMARY KEY,
                           configurations JSONB[], -- list of software configurations
                           flavor JSONB, -- flavor (name, ram) information
                           slice_id INTEGER REFERENCES slices(id) ON DELETE CASCADE);
+
+-- Tables for assessment module
+create table assessments (id SERIAL PRIMARY KEY,
+                          atitle TEXT,
+	                        adescription TEXT,
+	                        questions TEXT[],
+	                        scores TEXT[],
+                          UNIQUE (atitle));
+
+create table questions (id SERIAL PRIMARY KEY,
+	                      qkind TEXT,
+                        qtitle TEXT,
+                        qtext TEXT,
+                        answers TEXT[],
+                        correct TEXT[],
+                        feedback TEXT,
+                        UNIQUE (qtitle));
+
+create table reports (id SERIAL PRIMARY KEY,
+                      student TEXT,
+                      labname TEXT,
+                      assessmentid TEXT,
+                      answers TEXT[],
+                      starttime BIGINT,
+                      endtime BIGINT,
+                      pre_post INTEGER,
+                      attempt_num INTEGER);
+
+create table grades (id SERIAL PRIMARY KEY,
+                     student TEXT,
+                     reportid INTEGER,
+                     points TEXT[],
+                     feedback TEXT[],
+                     needsgrading TEXT)

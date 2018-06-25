@@ -20,6 +20,9 @@ class Lab(Model):
     owner_id = IntegerField()
     scenario_id = IntegerField()
     status = EnumField()
+    preassessment_id = IntegerField()
+    postassessment_id = IntegerField()
+    allowed_attempts = ArrayField()
     error_msgs = ArrayField()
 
     class Meta:
@@ -111,3 +114,49 @@ class UserInfo(Model):
 
     class Meta:
         table = 'userinfos'
+
+
+# Models for Assessment Module
+
+class Assessment(Model):
+    atitle = TextField()
+    adescription = TextField()
+    questions = ArrayField()
+    scores = ArrayField()
+
+    class Meta:
+        table = 'assessments'
+
+class Question(Model):
+    qkind = TextField()
+    qtitle = TextField()
+    qtext = TextField()
+    answers = ArrayField()
+    correct = ArrayField()
+    feedback = TextField()
+
+    class Meta:
+        table = 'questions'
+
+class Report(Model):
+    student = TextField()
+    labname = TextField()
+    assessmentid = TextField()
+    answers = ArrayField()
+    starttime = IntegerField()
+    endtime = IntegerField()
+    pre_post = IntegerField()
+    attempt_num = IntegerField()
+
+    class Meta:
+        table = 'reports'
+
+class Grade(Model):
+    student = TextField()
+    reportid = IntegerField()
+    points = ArrayField()
+    feedback = ArrayField()
+    needsgrading = TextField()
+
+    class Meta:
+        table = 'grades'
